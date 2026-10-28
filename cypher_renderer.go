@@ -8,16 +8,46 @@ import (
 )
 
 type CypherRenderer struct {
-	visitableToAliased     map[string]AliasedExpression
-	separatorOnLevel       map[int]string
-	resolvedSymbolicNames  map[SymbolicName]string
-	visitedNamed           map[string]int
-	currentVisitedElements []string
-	currentAliasedElements []AliasedExpression
-	currentLevel           int
-	skipNodeContent        bool
-	builder                strings.Builder
-	guid                   xid.ID
+	visitableToAliased      map[string]AliasedExpression
+	separatorOnLevel        map[int]string
+	resolvedSymbolicNames   map[SymbolicName]string
+	visitedNamed            map[string]int
+	currentVisitedElements  []string
+	currentAliasedElements  []AliasedExpression
+	currentLevel            int
+	skipNodeContent         bool
+	builder                 strings.Builder
+	guid                    xid.ID
+	escapeLabels            bool
+	escapeRelationshipTypes bool
+}
+
+type RendererOption func(*CypherRenderer)
+
+// WithLabelEscaping controls whether node labels are always backticked (the
+// default) or only when they are not plain identifiers.
+func WithLabelEscaping(always bool) RendererOption {
+	return func(r *CypherRenderer) { r.escapeLabels = always }
+}
+
+// WithRelationshipTypeEscaping controls whether relationship types are always
+// backticked (the default) or only when they are not plain identifiers.
+func WithRelationshipTypeEscaping(always bool) RendererOption {
+	return func(r *CypherRenderer) { r.escapeRelationshipTypes = always }
+}
+
+func (renderer *CypherRenderer) escapeLabel(name string) string {
+	if renderer.escapeLabels {
+		return escapeName(name)
+	}
+	return EscapeIfNecessary(name)
+}
+
+func (renderer *CypherRenderer) escapeRelationshipType(name string) string {
+	if renderer.escapeRelationshipTypes {
+		return escapeName(name)
+	}
+	return EscapeIfNecessary(name)
 }
 
 func (renderer *CypherRenderer) append(content string) *CypherRenderer {
@@ -25,18 +55,24 @@ func (renderer *CypherRenderer) append(content string) *CypherRenderer {
 	return renderer
 }
 
-func NewRenderer() *CypherRenderer {
-	return &CypherRenderer{
-		visitableToAliased:     make(map[string]AliasedExpression),
-		separatorOnLevel:       make(map[int]string),
-		resolvedSymbolicNames:  make(map[SymbolicName]string),
-		visitedNamed:           make(map[string]int),
-		currentVisitedElements: make([]string, 0),
-		currentAliasedElements: make([]AliasedExpression, 0),
-		skipNodeContent:        false,
-		builder:                strings.Builder{},
-		guid:                   xid.New(),
+func NewRenderer(opts ...RendererOption) *CypherRenderer {
+	r := &CypherRenderer{
+		visitableToAliased:      make(map[string]AliasedExpression),
+		separatorOnLevel:        make(map[int]string),
+		resolvedSymbolicNames:   make(map[SymbolicName]string),
+		visitedNamed:            make(map[string]int),
+		currentVisitedElements:  make([]string, 0),
+		currentAliasedElements:  make([]AliasedExpression, 0),
+		skipNodeContent:         false,
+		builder:                 strings.Builder{},
+		guid:                    xid.New(),
+		escapeLabels:            true,
+		escapeRelationshipTypes: true,
 	}
+	for _, opt := range opts {
+		opt(r)
+	}
+	return r
 }
 
 func (renderer CypherRenderer) Render(statement Statement) (string, error) {

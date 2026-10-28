@@ -269,7 +269,7 @@ func (n NodeLabel) enter(renderer *CypherRenderer) {
 		return
 	}
 	renderer.append(NodeLabelStart)
-	renderer.append(escapeName(n.value))
+	renderer.append(renderer.escapeLabel(n.value))
 }
 
 func (n NodeLabel) leave(renderer *CypherRenderer) {

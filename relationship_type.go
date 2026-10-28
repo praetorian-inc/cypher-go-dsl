@@ -47,7 +47,7 @@ func (r RelationshipTypes) enter(renderer *CypherRenderer) {
 		if typeRaw == "" {
 			continue
 		}
-		typeWithPrefix = append(typeWithPrefix, escapeName(typeRaw))
+		typeWithPrefix = append(typeWithPrefix, renderer.escapeRelationshipType(typeRaw))
 	}
 	if len(r.values) > 0 {
 		renderer.append(RelTypeStart).append(strings.Join(typeWithPrefix, RelTypSeparator))
