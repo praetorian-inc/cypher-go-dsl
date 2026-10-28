@@ -3,15 +3,21 @@ package cypher
 type MatchPhrase struct {
 	optional      bool
 	pattern       Pattern
+	hints         []IndexHint
 	optionalWhere Where
 	key           string
 	notNil        bool
 	err           error
 }
 
-func MatchPhraseCreate(optional bool, pattern Pattern, optionalWhere Where) MatchPhrase {
+func MatchPhraseCreate(optional bool, pattern Pattern, hints []IndexHint, optionalWhere Where) MatchPhrase {
 	if pattern.GetError() != nil {
 		return matchError(pattern.GetError())
+	}
+	for _, hint := range hints {
+		if hint.GetError() != nil {
+			return matchError(hint.GetError())
+		}
 	}
 	if optionalWhere.GetError() != nil {
 		return matchError(optionalWhere.GetError())
@@ -19,6 +25,7 @@ func MatchPhraseCreate(optional bool, pattern Pattern, optionalWhere Where) Matc
 	m := MatchPhrase{
 		optional:      optional,
 		pattern:       pattern,
+		hints:         hints,
 		optionalWhere: optionalWhere,
 		notNil:        true,
 	}
@@ -45,6 +52,9 @@ func (match MatchPhrase) isOptional() bool {
 func (match MatchPhrase) accept(visitor *CypherRenderer) {
 	visitor.enter(match)
 	match.pattern.accept(visitor)
+	for _, hint := range match.hints {
+		hint.accept(visitor)
+	}
 	VisitIfNotNull(match.optionalWhere, visitor)
 	visitor.leave(match)
 }

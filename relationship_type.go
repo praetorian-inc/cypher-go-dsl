@@ -3,16 +3,22 @@ package cypher
 import "strings"
 
 type RelationshipTypes struct {
-	values []string
-	key    string
-	notNil bool
-	err    error
+	values    []string
+	separator string
+	key       string
+	notNil    bool
+	err       error
 }
 
 func RelationshipTypesCreate(types []string) RelationshipTypes {
+	return RelationshipTypesCreateWithSeparator(RelTypSeparator, types...)
+}
+
+func RelationshipTypesCreateWithSeparator(separator string, types ...string) RelationshipTypes {
 	r := RelationshipTypes{
-		values: types,
-		notNil: true,
+		values:    types,
+		separator: separator,
+		notNil:    true,
 	}
 	r.key = getAddress(&r)
 	return r
@@ -50,7 +56,7 @@ func (r RelationshipTypes) enter(renderer *CypherRenderer) {
 		typeWithPrefix = append(typeWithPrefix, renderer.escapeRelationshipType(typeRaw))
 	}
 	if len(r.values) > 0 {
-		renderer.append(RelTypeStart).append(strings.Join(typeWithPrefix, RelTypSeparator))
+		renderer.append(RelTypeStart).append(strings.Join(typeWithPrefix, r.separator))
 	}
 }
 

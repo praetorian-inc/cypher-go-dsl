@@ -78,6 +78,23 @@ func NodeCreate3(primaryLabel string, additionalLabel ...string) Node {
 	return node
 }
 
+func NodeCreateWithLabels(labels ...NodeLabel) Node {
+	for _, label := range labels {
+		if label.GetError() != nil {
+			return NodeError(label.GetError())
+		}
+		if label.value == "" {
+			return NodeError(errors.New("empty label is not allowed"))
+		}
+	}
+	node := Node{
+		labels: labels,
+		notNil: true,
+	}
+	node.injectKey()
+	return node
+}
+
 func NodeCreate4(newProperties MapExpression, node Node) Node {
 	newNode := Node{symbolicName: node.symbolicName, labels: node.labels, notNil: true, properties: PropertiesCreate(newProperties)}
 	newNode.injectKey()
@@ -229,6 +246,7 @@ func (node Node) Project(entries ...interface{}) MapProjection {
 
 type NodeLabel struct {
 	value  string
+	raw    bool
 	key    string
 	notNil bool
 	err    error
@@ -240,6 +258,12 @@ func NodeLabelCreate(value string) NodeLabel {
 		notNil: true,
 	}
 	n.key = getAddress(&n)
+	return n
+}
+
+func RawLabel(value string) NodeLabel {
+	n := NodeLabelCreate(value)
+	n.raw = true
 	return n
 }
 
@@ -269,6 +293,10 @@ func (n NodeLabel) enter(renderer *CypherRenderer) {
 		return
 	}
 	renderer.append(NodeLabelStart)
+	if n.raw {
+		renderer.append(n.value)
+		return
+	}
 	renderer.append(renderer.escapeLabel(n.value))
 }
 

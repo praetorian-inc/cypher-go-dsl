@@ -500,6 +500,18 @@ func (d DefaultStatementBuilder) MatchDefault(optional bool, patterns ...Pattern
 	return d
 }
 
+func (d DefaultStatementBuilder) UsingIndex(alias string, label string, properties ...string) OngoingReadingWithoutWhere {
+	if d.err != nil {
+		return DefaultStatementBuilderError(d.err)
+	}
+	hint := IndexHintCreate(alias, label, properties...)
+	if hint.GetError() != nil {
+		return DefaultStatementBuilderError(hint.GetError())
+	}
+	d.currentOngoingMatch.hints = append(d.currentOngoingMatch.hints, hint)
+	return d
+}
+
 func (d *DefaultStatementBuilder) CloseCurrentOngoingMatch() {
 	if !d.currentOngoingMatch.notNil {
 		return
@@ -672,7 +684,7 @@ func prepareSetExpression(possibleSetOperations []Expression) ([]Expression, err
 	return propertyOperations, nil
 }
 
-//Implement OngoingMergeAction
+// Implement OngoingMergeAction
 type OngoingMergeActionInBuilder struct {
 	defaultBuilder *DefaultStatementBuilder
 	mergeType      MERGE_TYPE
