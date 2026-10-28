@@ -1,4 +1,4 @@
-module github.com/manhcuongbk56/cypher-go-dsl
+module github.com/praetorian-inc/cypher-go-dsl
 
 go 1.14
 

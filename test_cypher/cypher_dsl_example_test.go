@@ -1,7 +1,7 @@
 package test_cypher
 
 import (
-	"github.com/manhcuongbk56/cypher-go-dsl"
+	"github.com/praetorian-inc/cypher-go-dsl"
 	"testing"
 )
 
