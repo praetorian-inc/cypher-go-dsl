@@ -33,7 +33,7 @@ func TestRendererEscapingOptions(t *testing.T) {
 	r := a.RelationshipTo(b, "HAS").NamedByString("r")
 	st, err := Match(r).ReturningByNamed(a).Build()
 	assertRendered(t, NewRenderer(), "MATCH (a:`Asset`)-[r:`HAS`]->(b:`Weird Label`) RETURN a", st, err)
-	assertRendered(t, NewRenderer(WithLabelEscaping(false), WithRelationshipTypeEscaping(false)), "MATCH (a:Asset)-[r:HAS]->(b:`Weird Label`) RETURN a", st, err)
+	assertRendered(t, plainRenderer(), "MATCH (a:Asset)-[r:HAS]->(b:`Weird Label`) RETURN a", st, err)
 }
 
 func TestProcedureNamespace(t *testing.T) {

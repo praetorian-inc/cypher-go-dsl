@@ -49,6 +49,14 @@ func TestUsingIndexHint(t *testing.T) {
 	if _, err := Match(n).UsingIndex("n0", "Asset").ReturningByNamed(n).Build(); err == nil {
 		t.Fatal("expected an error for a hint without properties")
 	}
+
+	sub, err := Match(m).ReturningByNamed(m).Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Match(n).Call(sub).UsingIndex("n0", "Asset", "key").ReturningByNamed(n).Build(); err == nil {
+		t.Fatal("expected an error for a hint without an open match")
+	}
 }
 
 func TestShortestK(t *testing.T) {

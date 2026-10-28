@@ -504,6 +504,9 @@ func (d DefaultStatementBuilder) UsingIndex(alias string, label string, properti
 	if d.err != nil {
 		return DefaultStatementBuilderError(d.err)
 	}
+	if !d.currentOngoingMatch.notNil {
+		return DefaultStatementBuilderError(errors.New("match must have been invoked before adding an index hint"))
+	}
 	hint := IndexHintCreate(alias, label, properties...)
 	if hint.GetError() != nil {
 		return DefaultStatementBuilderError(hint.GetError())
