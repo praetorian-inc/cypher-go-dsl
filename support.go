@@ -1,11 +1,15 @@
 package cypher
 
 import (
-	"fmt"
+	"strconv"
+	"sync/atomic"
+
 	"github.com/rs/xid"
 )
 
 var SYMBOLIC_GENERATOR = xid.New()
+
+var keyCounter uint64
 
 func ExpressionsToVisitables(expressions []Expression) []Visitable {
 	visitables := make([]Visitable, len(expressions))
@@ -24,6 +28,5 @@ func PatternElementsToVisitables(patterns []PatternElement) []Visitable {
 }
 
 func getAddress(a interface{}) string {
-	return fmt.Sprintf("%p", a)
+	return strconv.FormatUint(atomic.AddUint64(&keyCounter, 1), 10)
 }
-

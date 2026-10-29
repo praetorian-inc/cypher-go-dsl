@@ -1,7 +1,7 @@
 package single_query_single_part
 
 import (
-	"github.com/manhcuongbk56/cypher-go-dsl"
+	"github.com/praetorian-inc/cypher-go-dsl"
 	"testing"
 )
 

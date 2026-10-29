@@ -2,7 +2,7 @@ package cypherit
 
 import (
 	"fmt"
-	"github.com/manhcuongbk56/cypher-go-dsl"
+	"github.com/praetorian-inc/cypher-go-dsl"
 	"testing"
 )
 

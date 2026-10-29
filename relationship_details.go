@@ -73,8 +73,6 @@ func RelationshipDetailsError(err error) RelationshipDetails {
 	}
 }
 
-
-
 func (r RelationshipDetails) GetError() error {
 	return r.err
 }
@@ -103,6 +101,11 @@ func (r RelationshipDetails) named(newSymbolicName SymbolicName) RelationshipDet
 
 func (r RelationshipDetails) with(newProperties Properties) RelationshipDetails {
 	return RelationshipDetailsCreate(r.direction, r.symbolicName, r.types, r.length, newProperties)
+}
+
+func (r RelationshipDetails) withTypeSeparator(separator string) RelationshipDetails {
+	types := RelationshipTypesCreateWithSeparator(separator, r.types.values...)
+	return RelationshipDetailsCreate(r.direction, r.symbolicName, types, r.length, r.properties)
 }
 
 func (r RelationshipDetails) unbounded() RelationshipDetails {

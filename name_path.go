@@ -1,13 +1,17 @@
 package cypher
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+)
 
 type NamedPath struct {
-	name    SymbolicName
-	pattern Visitable
-	key     string
-	notNil  bool
-	err     error
+	name     SymbolicName
+	shortest int
+	pattern  Visitable
+	key      string
+	notNil   bool
+	err      error
 }
 
 func NamedPathCreate(name SymbolicName, pattern RelationshipPattern) NamedPath {
@@ -100,6 +104,9 @@ func (n NamedPath) accept(visitor *CypherRenderer) {
 	visitor.enter(n)
 	n.name.accept(visitor)
 	ASSIGMENT.accept(visitor)
+	if n.shortest > 0 {
+		visitor.append("SHORTEST " + strconv.Itoa(n.shortest) + " ")
+	}
 	n.pattern.accept(visitor)
 	visitor.leave(n)
 }
@@ -118,8 +125,9 @@ func (n NamedPath) isNotNil() bool {
 	return n.notNil
 }
 
-//Interface
+// Interface
 type OngoingDefinitionWithName interface {
+	ShortestK(k int) OngoingDefinitionWithName
 	DefinedBy(pattern RelationshipPattern) NamedPath
 	GetError() error
 }
@@ -130,16 +138,33 @@ type OngoingShortestPathDefinitionWithName interface {
 }
 
 type NamedPathBuilder struct {
-	name SymbolicName
-	err  error
+	name     SymbolicName
+	shortest int
+	err      error
 }
 
 func NamedPathBuilderCreate(name SymbolicName) NamedPathBuilder {
 	return NamedPathBuilder{name: name}
 }
 
+func (n NamedPathBuilder) ShortestK(k int) OngoingDefinitionWithName {
+	if n.err != nil {
+		return n
+	}
+	if k < 1 {
+		return NamedPathBuilder{err: errors.New("SHORTEST requires k >= 1")}
+	}
+	n.shortest = k
+	return n
+}
+
 func (n NamedPathBuilder) DefinedBy(pattern RelationshipPattern) NamedPath {
-	return NamedPathCreate(n.name, pattern)
+	if n.err != nil {
+		return NamedPathError(n.err)
+	}
+	path := NamedPathCreate(n.name, pattern)
+	path.shortest = n.shortest
+	return path
 }
 
 func (n NamedPathBuilder) GetError() error {

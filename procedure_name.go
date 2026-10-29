@@ -16,9 +16,9 @@ func ProcedureNameCreate(namespaceAndProcedure ...string) ProcedureName {
 	if len(namespaceAndProcedure) == 1 {
 		return ProcedureNameCreate1(namespaceAndProcedure[0])
 	} else {
-		values := make([]string, 0)
 		inputLength := len(namespaceAndProcedure)
-		copy(values, namespaceAndProcedure[1:inputLength-1])
+		values := make([]string, inputLength-1)
+		copy(values, namespaceAndProcedure[:inputLength-1])
 		namespace := NameSpaceCreate(values)
 		return ProcedureNameCreate2(namespace, namespaceAndProcedure[inputLength-1])
 	}
@@ -68,6 +68,9 @@ func (p ProcedureName) enter(renderer *CypherRenderer) {
 }
 
 func (p ProcedureName) leave(renderer *CypherRenderer) {
+	if p.optionalNamespace.isNotNil() && len(p.optionalNamespace.content) > 0 {
+		renderer.append(".")
+	}
 	renderer.append(p.value)
 }
 

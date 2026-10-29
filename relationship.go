@@ -81,6 +81,10 @@ func (r Relationship) NamedByString(newSymbolicName string) Relationship {
 	return RelationshipCreate3(r.left, r.details.namedByString(newSymbolicName), r.right)
 }
 
+func (r Relationship) WithTypeSeparator(separator string) Relationship {
+	return RelationshipCreate3(r.left, r.details.withTypeSeparator(separator), r.right)
+}
+
 func (r Relationship) Unbounded() Relationship {
 	return RelationshipCreate3(r.left, r.details.unbounded(), r.right)
 }

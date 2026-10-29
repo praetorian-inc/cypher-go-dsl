@@ -19,6 +19,7 @@ type OngoingReadingWithoutWhere interface {
 	ExposesWhere
 	ExposesMatch
 	ExposesExistentialSubqueryCall
+	UsingIndex(alias string, label string, properties ...string) OngoingReadingWithoutWhere
 }
 
 type OngoingReading interface {

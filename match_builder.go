@@ -2,6 +2,7 @@ package cypher
 
 type MatchBuilder struct {
 	patternList      []PatternElement
+	hints            []IndexHint
 	conditionBuilder ConditionBuilder
 	optional         bool
 	notNil           bool
@@ -20,7 +21,7 @@ func (builder MatchBuilder) buildMatch() MatchPhrase {
 	conditionBuilder := builder.conditionBuilder
 	builtCondition := conditionBuilder.buildCondition()
 	if builtCondition == nil || !builtCondition.isNotNil() {
-		return MatchPhraseCreate(builder.optional, pattern, Where{})
+		return MatchPhraseCreate(builder.optional, pattern, builder.hints, Where{})
 	}
-	return MatchPhraseCreate(builder.optional, pattern, WhereCreate(builtCondition))
+	return MatchPhraseCreate(builder.optional, pattern, builder.hints, WhereCreate(builtCondition))
 }
